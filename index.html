@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="514-koishi-514 的 GitHub Pages：动态个人网页、Markdown/QMD 笔记预览与项目索引。"
+    />
+    <title>514-koishi-514 | Notes Studio</title>
+    <link rel="preconnect" href="https://avatars.githubusercontent.com" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
+        svg: { fontCache: "global" }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/marked@13.0.2/marked.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <div class="motion-field" aria-hidden="true">
+      <span class="beam beam-a"></span>
+      <span class="beam beam-b"></span>
+      <span class="grid-glow"></span>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="回到首页">
+        <img src="https://avatars.githubusercontent.com/u/193676623?v=4" alt="514-koishi-514 avatar" />
+        <span>514-koishi-514</span>
+      </a>
+      <nav aria-label="主导航">
+        <a href="#studio">Studio</a>
+        <a href="#projects">Projects</a>
+        <a href="#formats">Formats</a>
+      </nav>
+      <a class="icon-link" href="https://github.com/514-koishi-514" aria-label="GitHub profile">
+        <i data-lucide="github"></i>
+      </a>
+    </header>
+
+    <main>
+      <section class="workspace" id="studio">
+        <aside class="profile-panel reveal">
+          <div class="identity">
+            <img src="https://avatars.githubusercontent.com/u/193676623?v=4" alt="514-koishi-514 avatar" />
+            <div>
+              <p class="eyebrow">GitHub Pages</p>
+              <h1>Notes Studio</h1>
+            </div>
+          </div>
+          <p class="intro">
+            一个轻量的个人网页：放作品、放笔记，也可以把 Markdown 和 QMD 拖进来即时预览。
+          </p>
+
+          <div class="quick-stats" aria-label="站点能力">
+            <div>
+              <strong>MD</strong>
+              <span>Markdown</span>
+            </div>
+            <div>
+              <strong>QMD</strong>
+              <span>Quarto</span>
+            </div>
+            <div>
+              <strong>TXT</strong>
+              <span>Plain text</span>
+            </div>
+          </div>
+
+          <div class="file-list" aria-label="示例文件">
+            <button class="file-card is-active" type="button" data-sample="content/welcome.md">
+              <i data-lucide="file-text"></i>
+              <span>
+                <strong>welcome.md</strong>
+                <small>主页介绍</small>
+              </span>
+            </button>
+            <button class="file-card" type="button" data-sample="content/quarto-notes.qmd">
+              <i data-lucide="braces"></i>
+              <span>
+                <strong>quarto-notes.qmd</strong>
+                <small>QMD 示例</small>
+              </span>
+            </button>
+          </div>
+        </aside>
+
+        <section class="reader reveal" aria-label="文档预览器">
+          <div class="reader-toolbar">
+            <div>
+              <p class="eyebrow">Live Preview</p>
+              <h2 id="document-title">welcome.md</h2>
+            </div>
+            <div class="toolbar-actions">
+              <label class="icon-button" title="打开本地文件">
+                <i data-lucide="upload"></i>
+                <input id="file-input" type="file" accept=".md,.markdown,.qmd,.txt,text/markdown,text/plain" />
+              </label>
+              <button class="icon-button" type="button" id="copy-button" title="复制源码">
+                <i data-lucide="copy"></i>
+              </button>
+              <button class="icon-button" type="button" id="theme-button" title="切换明暗">
+                <i data-lucide="moon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="drop-zone" id="drop-zone">
+            <div class="preview" id="preview" tabindex="0"></div>
+            <div class="drop-hint">
+              <i data-lucide="file-up"></i>
+              <span>Drop markdown or qmd</span>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="projects" id="projects">
+        <div class="section-head reveal">
+          <p class="eyebrow">Project Board</p>
+          <h2>可以继续扩展的内容区</h2>
+        </div>
+        <div class="project-grid">
+          <article class="project-card reveal">
+            <i data-lucide="sparkles"></i>
+            <h3>AI Notes</h3>
+            <p>记录模型实验、提示词、训练日志和论文阅读。</p>
+          </article>
+          <article class="project-card reveal">
+            <i data-lucide="code-2"></i>
+            <h3>Code Lab</h3>
+            <p>展示课程项目、算法练习和可复现实验。</p>
+          </article>
+          <article class="project-card reveal">
+            <i data-lucide="book-open-text"></i>
+            <h3>Quarto Docs</h3>
+            <p>把 `.qmd` 当作研究笔记源文件，网页端先做快速预览。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="formats" id="formats">
+        <div class="format-strip reveal">
+          <span>.md</span>
+          <span>.markdown</span>
+          <span>.qmd</span>
+          <span>.txt</span>
+          <span>front matter</span>
+          <span>math</span>
+          <span>code blocks</span>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

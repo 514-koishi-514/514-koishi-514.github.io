@@ -1,0 +1,36 @@
+---
+title: "Quarto Notes"
+author: "514-koishi-514"
+format:
+  html:
+    toc: true
+---
+
+# QMD 示例
+
+这个文件保留了 Quarto 常见的 YAML front matter。网页预览器会把它隐藏掉，然后按 Markdown 内容渲染。
+
+## Python cell
+
+```{python}
+import math
+
+values = [math.sin(x / 10) for x in range(5)]
+values
+```
+
+## Math
+
+$$
+\nabla_\theta J(\theta) =
+\mathbb{E}_{\tau \sim \pi_\theta}
+\left[\nabla_\theta \log \pi_\theta(\tau) R(\tau)\right]
+$$
+
+## Table
+
+| Format | Status | Notes |
+| --- | --- | --- |
+| Markdown | Ready | `.md`, `.markdown` |
+| Quarto | Ready | `.qmd` preview |
+| Text | Ready | `.txt` quick view |
