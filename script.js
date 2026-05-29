@@ -29,6 +29,9 @@ const postContent = document.querySelector("#post-content");
 const postToc = document.querySelector("#post-toc");
 
 const themeButton = document.querySelector("#theme-button");
+const codeThemeButton = document.querySelector("#code-theme-button");
+const hljsThemeDark = document.querySelector("#hljs-theme-dark");
+const hljsThemeLight = document.querySelector("#hljs-theme-light");
 const fileInput = document.querySelector("#file-input");
 const copyButton = document.querySelector("#copy-button");
 const dropZone = document.querySelector("#drop-zone");
@@ -65,6 +68,7 @@ const escapeHtml = (value) => {
 
 const renderInlineMarkdown = (source) => {
   return escapeHtml(source)
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)(?:\{[^}]+\})?/g, '<img src="$2" alt="$1" />')
     .replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>")
@@ -78,6 +82,7 @@ const basicMarkdownToHtml = (source) => {
   let index = 0;
   let inList = false;
   let listType = "ul";
+  const calloutStack = [];
 
   const closeList = () => {
     if (inList) {
@@ -87,10 +92,45 @@ const basicMarkdownToHtml = (source) => {
     }
   };
 
+  const calloutTitle = (type) => {
+    const labels = {
+      note: "Note",
+      tip: "Tip",
+      warning: "Warning",
+      important: "Important",
+      caution: "Caution"
+    };
+    return labels[type] || type;
+  };
+
+  const openCallout = (type) => {
+    closeList();
+    calloutStack.push(type);
+    html.push(
+      `<aside class="callout callout-${escapeHtml(type)}" data-callout="${escapeHtml(type)}"><div class="callout-label"><span class="callout-icon"></span><span>${calloutTitle(type)}</span></div><div class="callout-content">`
+    );
+  };
+
+  const closeCallout = () => {
+    closeList();
+    if (calloutStack.length) {
+      calloutStack.pop();
+      html.push("</div></aside>");
+    }
+  };
+
   while (index < lines.length) {
     const line = lines[index];
 
-    if (/^```/.test(line)) {
+    const calloutStart = line.match(/^:::\s*\{\.callout-([a-z-]+).*}$/);
+    if (calloutStart) {
+      openCallout(calloutStart[1]);
+    } else if (/^:::\s*$/.test(line)) {
+      closeCallout();
+    } else if (/^---+$/.test(line.trim())) {
+      closeList();
+      html.push("<hr />");
+    } else if (/^```/.test(line)) {
       closeList();
       const language = line.replace(/^```/, "").trim();
       const code = [];
@@ -121,7 +161,13 @@ const basicMarkdownToHtml = (source) => {
       html.push(`<h${level}>${renderInlineMarkdown(line.replace(/^#{1,6}\s+/, ""))}</h${level}>`);
     } else if (/^>\s?/.test(line)) {
       closeList();
-      html.push(`<blockquote><p>${renderInlineMarkdown(line.replace(/^>\s?/, ""))}</p></blockquote>`);
+      const quote = [];
+      while (index < lines.length && /^>\s?/.test(lines[index])) {
+        quote.push(lines[index].replace(/^>\s?/, ""));
+        index += 1;
+      }
+      html.push(`<blockquote>${quote.map((item) => (item ? `<p>${renderInlineMarkdown(item)}</p>` : "")).join("")}</blockquote>`);
+      continue;
     } else if (/^[-*]\s+/.test(line)) {
       if (!inList || listType !== "ul") {
         closeList();
@@ -149,10 +195,13 @@ const basicMarkdownToHtml = (source) => {
   }
 
   closeList();
+  while (calloutStack.length) {
+    closeCallout();
+  }
   return html.join("\n");
 };
 
-// QMD 的 YAML front matter、代码块、callout 和 chunk options 需要转成普通 Markdown。
+// QMD 的 YAML front matter、代码块和 chunk options 需要转成普通 Markdown；callout 由本地渲染器栈式处理。
 const normalizeMarkdown = (source) => {
   return source
     .replace(/^---[\s\S]*?---\s*/m, "")
@@ -161,8 +210,6 @@ const normalizeMarkdown = (source) => {
       return `\`\`\`${language}`;
     })
     .replace(/^#\|\s?.*$/gm, "")
-    .replace(/^:::\s*\{\.callout-([a-z-]+).*}$/gm, (_, type) => `> **${type.toUpperCase()}**`)
-    .replace(/^:::\s*$/gm, "")
     .trim();
 };
 
@@ -192,9 +239,7 @@ const restoreMath = (html, math) => {
 const markdownToHtml = (source) => {
   const normalized = normalizeMarkdown(source);
   const { text, math } = protectMath(normalized);
-  const html = window.marked
-    ? window.marked.parse(text, { gfm: true, breaks: false })
-    : basicMarkdownToHtml(text);
+  const html = basicMarkdownToHtml(text);
 
   const restored = restoreMath(html, math);
   return window.DOMPurify ? window.DOMPurify.sanitize(restored) : restored;
@@ -208,6 +253,135 @@ const renderMath = async (container) => {
       console.warn("MathJax render skipped:", error);
     }
   }
+};
+
+const languageLabel = (language) => {
+  const labels = {
+    js: "JavaScript",
+    javascript: "JavaScript",
+    ts: "TypeScript",
+    typescript: "TypeScript",
+    py: "Python",
+    python: "Python",
+    cpp: "C++",
+    c: "C",
+    bash: "Shell",
+    sh: "Shell",
+    yaml: "YAML",
+    yml: "YAML",
+    json: "JSON",
+    text: "Text",
+    markdown: "Markdown",
+    mermaid: "Mermaid"
+  };
+  return labels[language] || language || "Code";
+};
+
+const languageIcon = (language) => {
+  const icons = {
+    python: "Py",
+    py: "Py",
+    cpp: "C++",
+    c: "C",
+    javascript: "JS",
+    js: "JS",
+    typescript: "TS",
+    ts: "TS",
+    yaml: "YML",
+    yml: "YML",
+    json: "{}",
+    mermaid: "M",
+    markdown: "MD",
+    bash: "$",
+    sh: "$"
+  };
+  return icons[language] || "&lt;/&gt;";
+};
+
+const fallbackHighlight = (code, language) => {
+  const source = code.textContent;
+  let html = escapeHtml(source);
+
+  const stash = [];
+  const keep = (className) => (match) => {
+    const token = `@@HL_${"x".repeat(stash.length + 1)}@@`;
+    stash.push(`<span class="${className}">${match}</span>`);
+    return token;
+  };
+
+  html = html.replace(/(&quot;.*?&quot;|'.*?'|`.*?`)/g, keep("hljs-string"));
+  html = html.replace(/(\/\/.*$|#.*$)/gm, keep("hljs-comment"));
+
+  const keywordMap = {
+    python: /\b(def|return|if|else|elif|for|while|import|from|as|in|class|print|True|False|None|and|or|not)\b/g,
+    py: /\b(def|return|if|else|elif|for|while|import|from|as|in|class|print|True|False|None|and|or|not)\b/g,
+    cpp: /\b(int|return|using|namespace|include|iostream|std|cout|endl|if|else|for|while|class|public|private|void|auto|const)\b/g,
+    c: /\b(int|return|include|stdio|if|else|for|while|void|char|float|double|const)\b/g,
+    javascript: /\b(const|let|var|function|return|if|else|for|while|class|import|export|from|async|await|true|false|null)\b/g,
+    js: /\b(const|let|var|function|return|if|else|for|while|class|import|export|from|async|await|true|false|null)\b/g,
+    yaml: /^(\s*[\w-]+)(:)/gm,
+    yml: /^(\s*[\w-]+)(:)/gm
+  };
+
+  if (keywordMap[language]) {
+    if (language === "yaml" || language === "yml") {
+      html = html.replace(keywordMap[language], '<span class="hljs-attr">$1</span>$2');
+    } else {
+      html = html.replace(keywordMap[language], '<span class="hljs-keyword">$1</span>');
+    }
+  }
+
+  html = html.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="hljs-number">$1</span>');
+  html = stash.reduce((result, value, index) => result.replaceAll(`@@HL_${index}@@`, value), html);
+  html = stash.reduce((result, value, index) => result.replaceAll(`@@HL_${"x".repeat(index + 1)}@@`, value), html);
+  code.innerHTML = html;
+  code.classList.add("hljs");
+};
+
+const getCodeLanguage = (code) => {
+  const languageClass = [...code.classList].find((className) => className.startsWith("language-"));
+  return languageClass?.replace("language-", "").toLowerCase() || "text";
+};
+
+// 代码块增强：加 Atom One 高亮、语言标题条，以及更明显的语言标识。
+const enhanceCodeBlocks = (container) => {
+  container.querySelectorAll("pre > code").forEach((code) => {
+    const pre = code.parentElement;
+    if (!pre || pre.closest(".code-shell")) return;
+
+    const language = getCodeLanguage(code);
+    if (window.hljs && language !== "mermaid") {
+      window.hljs.highlightElement(code);
+    } else {
+      fallbackHighlight(code, language);
+    }
+
+    const shell = document.createElement("figure");
+    shell.className = "code-shell";
+    shell.dataset.language = language;
+    shell.innerHTML = `
+      <figcaption class="code-caption">
+        <span class="code-language">
+          <span class="code-language-icon">${languageIcon(language)}</span>
+          <span>${languageLabel(language)}</span>
+        </span>
+      </figcaption>
+    `;
+
+    pre.replaceWith(shell);
+    shell.append(pre);
+  });
+};
+
+const applyCodeTheme = (theme) => {
+  const isLight = theme === "light";
+  document.body.classList.toggle("code-theme-light", isLight);
+  document.body.classList.toggle("code-theme-dark", !isLight);
+  if (hljsThemeDark && hljsThemeLight) {
+    hljsThemeDark.disabled = isLight;
+    hljsThemeLight.disabled = !isLight;
+  }
+  localStorage.setItem("code-theme", isLight ? "light" : "dark");
 };
 
 const getAllTags = () => {
@@ -307,6 +481,7 @@ const renderPost = async (slug) => {
     if (!response.ok) throw new Error(`Cannot load ${post.file}`);
     const source = await response.text();
     postContent.innerHTML = markdownToHtml(source);
+    enhanceCodeBlocks(postContent);
   } catch (error) {
     postContent.innerHTML = `<p>文章加载失败，请检查 <code>${post.file}</code> 是否存在。</p>`;
     console.error(error);
@@ -332,6 +507,7 @@ const renderStudio = async (source, name = "untitled.md") => {
   state.studioSource = source;
   studioTitle.textContent = name;
   studioPreview.innerHTML = markdownToHtml(source);
+  enhanceCodeBlocks(studioPreview);
   await renderMath(studioPreview);
   studioPreview.scrollTo({ top: 0, behavior: "smooth" });
 };
@@ -420,6 +596,10 @@ themeButton.addEventListener("click", () => {
   localStorage.setItem("blog-theme", document.body.classList.contains("dark") ? "dark" : "light");
 });
 
+codeThemeButton.addEventListener("click", () => {
+  applyCodeTheme(document.body.classList.contains("code-theme-light") ? "dark" : "light");
+});
+
 fileInput.addEventListener("change", async (event) => {
   const [file] = event.target.files;
   if (file) await readLocalFile(file);
@@ -482,6 +662,7 @@ const init = async () => {
   if (localStorage.getItem("blog-theme") === "dark") {
     document.body.classList.add("dark");
   }
+  applyCodeTheme(localStorage.getItem("code-theme") || "dark");
 
   try {
     const response = await fetch("data/posts.json");

@@ -144,6 +144,57 @@ button {
   animation-delay: -1.7s;
 }
 
+.star-field {
+  position: absolute;
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow:
+    4.5rem 2.2rem 0 rgba(255, 209, 102, 0.55),
+    9rem 6rem 0 rgba(84, 217, 231, 0.5),
+    16rem 1rem 0 rgba(255, 115, 173, 0.5),
+    21rem 7.5rem 0 rgba(255, 255, 255, 0.58),
+    28rem 3.8rem 0 rgba(157, 134, 255, 0.48),
+    34rem 9rem 0 rgba(255, 209, 102, 0.45);
+  opacity: 0.58;
+  animation: star-drift 18s ease-in-out infinite alternate;
+}
+
+.star-field-a {
+  top: 14%;
+  left: 12%;
+}
+
+.star-field-b {
+  right: 10%;
+  bottom: 18%;
+  transform: scale(0.85);
+  animation-delay: -7s;
+}
+
+.comet {
+  position: absolute;
+  width: 9rem;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.78), transparent);
+  opacity: 0.38;
+  transform: rotate(-22deg);
+  animation: comet-glide 12s ease-in-out infinite;
+}
+
+.comet-a {
+  top: 28%;
+  left: 4%;
+}
+
+.comet-b {
+  right: 8%;
+  bottom: 30%;
+  animation-delay: -5s;
+}
+
 .ribbon {
   position: absolute;
   top: 10rem;
@@ -739,6 +790,7 @@ h2 {
 }
 
 .markdown-body code {
+  font-family: "Manoco", "Monaco", "Heiti SC", "SimHei", "Microsoft YaHei", ui-monospace, SFMono-Regular, Consolas, monospace;
   padding: 0.12rem 0.34rem;
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -747,17 +799,147 @@ h2 {
 
 .markdown-body pre {
   overflow: auto;
+  margin: 0;
   padding: 1rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: rgba(25, 21, 34, 0.86);
-  color: #fff7fb;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: #282c34;
 }
 
 .markdown-body pre code {
+  display: block;
+  font-family: "Manoco", "Monaco", "Heiti SC", "SimHei", "Microsoft YaHei", ui-monospace, SFMono-Regular, Consolas, monospace;
   padding: 0;
   border: 0;
   background: transparent;
+  white-space: pre;
+}
+
+.code-shell {
+  overflow: hidden;
+  margin: 1.4rem 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #282c34;
+  box-shadow: 0 18px 48px rgba(25, 21, 34, 0.18);
+}
+
+.code-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.78rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(90deg, rgba(255, 115, 173, 0.16), rgba(84, 217, 231, 0.1)),
+    rgba(20, 23, 32, 0.94);
+}
+
+.code-language {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.52rem;
+  color: #f5f7ff;
+  font-family: "Manoco", "Monaco", "Heiti SC", "SimHei", "Microsoft YaHei", ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.code-language-icon {
+  display: inline-grid;
+  min-width: 2rem;
+  height: 1.35rem;
+  place-items: center;
+  padding: 0 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  color: #241624;
+  background: linear-gradient(135deg, var(--yellow), var(--pink));
+  font-size: 0.68rem;
+}
+
+body.code-theme-light .code-shell {
+  background: #fafafa;
+  box-shadow: 0 18px 48px rgba(84, 111, 143, 0.12);
+}
+
+body.code-theme-light .code-caption {
+  border-bottom-color: rgba(36, 22, 36, 0.1);
+  background:
+    linear-gradient(90deg, rgba(255, 115, 173, 0.13), rgba(84, 217, 231, 0.13)),
+    #f5f6fb;
+}
+
+body.code-theme-light .code-language {
+  color: #2f3342;
+}
+
+body.code-theme-light .markdown-body pre {
+  background: #fafafa;
+}
+
+/* CDN 失败时，本地 fallback 高亮也使用 Atom One 系列配色。 */
+.hljs {
+  color: #abb2bf;
+}
+
+.hljs-keyword,
+.hljs-selector-tag {
+  color: #c678dd;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #98c379;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #7f848e;
+  font-style: italic;
+}
+
+.hljs-number,
+.hljs-literal {
+  color: #d19a66;
+}
+
+.hljs-attr,
+.hljs-title,
+.hljs-name {
+  color: #61afef;
+}
+
+body.code-theme-light .hljs {
+  color: #383a42;
+}
+
+body.code-theme-light .hljs-keyword,
+body.code-theme-light .hljs-selector-tag {
+  color: #a626a4;
+}
+
+body.code-theme-light .hljs-string,
+body.code-theme-light .hljs-doctag {
+  color: #50a14f;
+}
+
+body.code-theme-light .hljs-comment,
+body.code-theme-light .hljs-quote {
+  color: #a0a1a7;
+}
+
+body.code-theme-light .hljs-number,
+body.code-theme-light .hljs-literal {
+  color: #986801;
+}
+
+body.code-theme-light .hljs-attr,
+body.code-theme-light .hljs-title,
+body.code-theme-light .hljs-name {
+  color: #4078f2;
 }
 
 .markdown-body table {
@@ -771,6 +953,99 @@ h2 {
   overflow-x: auto;
   margin: 1.4rem 0;
   padding: 0.4rem 0;
+}
+
+.callout {
+  position: relative;
+  overflow: hidden;
+  margin: 1.25rem 0;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--cyan);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(84, 217, 231, 0.1), rgba(255, 255, 255, 0.28)),
+    var(--panel-strong);
+}
+
+.callout + .callout,
+.callout .callout {
+  margin-top: 0.8rem;
+}
+
+.callout-label {
+  display: flex;
+  align-items: center;
+  gap: 0.56rem;
+  padding: 0.72rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-family: "Manoco", "Monaco", "Heiti SC", "SimHei", "Microsoft YaHei", ui-monospace, monospace;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.callout-icon {
+  display: inline-grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--cyan);
+  color: #172126;
+}
+
+.callout-icon::before {
+  content: "i";
+  font-weight: 900;
+}
+
+.callout-content {
+  padding: 0.95rem;
+}
+
+.callout-content > :first-child {
+  margin-top: 0;
+}
+
+.callout-content > :last-child {
+  margin-bottom: 0;
+}
+
+.callout-warning {
+  border-left-color: var(--yellow);
+}
+
+.callout-warning .callout-icon {
+  background: var(--yellow);
+}
+
+.callout-warning .callout-icon::before {
+  content: "!";
+}
+
+.callout-important {
+  border-left-color: var(--pink);
+}
+
+.callout-important .callout-icon {
+  background: var(--pink);
+}
+
+.callout-important .callout-icon::before {
+  content: "*";
+}
+
+.callout-tip {
+  border-left-color: var(--mint);
+}
+
+.callout-tip .callout-icon {
+  background: var(--mint);
+}
+
+.callout-caution {
+  border-left-color: var(--violet);
 }
 
 .markdown-body th,
@@ -969,6 +1244,33 @@ h2 {
   50% {
     opacity: 1;
     transform: scale(1.2) rotate(45deg);
+  }
+}
+
+@keyframes star-drift {
+  from {
+    opacity: 0.38;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0.7;
+    transform: translate3d(1.2rem, -0.8rem, 0);
+  }
+}
+
+@keyframes comet-glide {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate3d(-2rem, 1rem, 0) rotate(-22deg);
+  }
+  35%,
+  60% {
+    opacity: 0.42;
+  }
+  75% {
+    opacity: 0;
+    transform: translate3d(8rem, -2rem, 0) rotate(-22deg);
   }
 }
 

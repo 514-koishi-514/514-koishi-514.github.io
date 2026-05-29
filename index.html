@@ -8,8 +8,10 @@
       content="514-koishi-514 的个人博客，记录 AI、编程、课程项目与日常笔记。"
     />
     <title>514-koishi-514 | Blog</title>
-    <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/193676623?v=4" />
-    <link rel="apple-touch-icon" href="https://avatars.githubusercontent.com/u/193676623?v=4" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=3" />
+    <link rel="icon" type="image/jpeg" href="assets/favicon.jpg?v=3" />
+    <link rel="shortcut icon" href="favicon.ico?v=3" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
 
     <!-- 字体：标题使用偏刊物感的 serif，正文保持中文阅读舒适。 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,6 +19,17 @@
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Serif+SC:wght@500;700&family=Outfit:wght@400;600;700;800&display=swap"
       rel="stylesheet"
+    />
+    <link
+      id="hljs-theme-dark"
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.min.css"
+    />
+    <link
+      id="hljs-theme-light"
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-light.min.css"
+      disabled
     />
     <link rel="stylesheet" href="styles.css" />
 
@@ -29,6 +42,7 @@
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/marked@13.0.2/marked.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     <script defer src="script.js"></script>
@@ -41,6 +55,10 @@
       <span class="star star-a"></span>
       <span class="star star-b"></span>
       <span class="star star-c"></span>
+      <span class="star-field star-field-a"></span>
+      <span class="star-field star-field-b"></span>
+      <span class="comet comet-a"></span>
+      <span class="comet comet-b"></span>
       <span class="ribbon"></span>
     </div>
 
@@ -62,6 +80,9 @@
       </nav>
 
       <div class="header-actions">
+        <button class="icon-button" type="button" id="code-theme-button" title="切换代码块明暗" aria-label="切换代码块明暗">
+          <i data-lucide="braces"></i>
+        </button>
         <button class="icon-button" type="button" id="theme-button" title="切换主题" aria-label="切换主题">
           <i data-lucide="moon"></i>
         </button>
