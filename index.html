@@ -5,11 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="514-koishi-514 的 GitHub Pages：动态个人网页、Markdown/QMD 笔记预览与项目索引。"
+      content="514-koishi-514 的个人博客，记录 AI、编程、课程项目与日常笔记。"
     />
-    <title>514-koishi-514 | Notes Studio</title>
-    <link rel="preconnect" href="https://avatars.githubusercontent.com" />
+    <title>514-koishi-514 | Blog</title>
+
+    <!-- 字体：标题使用偏刊物感的 serif，正文保持中文阅读舒适。 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Serif+SC:wght@500;700&family=Outfit:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
+
+    <!-- 第三方库：Markdown 渲染、安全清洗、图标、数学公式。 -->
     <script>
       window.MathJax = {
         tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] },
@@ -23,137 +32,239 @@
     <script defer src="script.js"></script>
   </head>
   <body>
-    <div class="motion-field" aria-hidden="true">
-      <span class="beam beam-a"></span>
-      <span class="beam beam-b"></span>
-      <span class="grid-glow"></span>
+    <!-- 背景装饰：轻二次元氛围，但不影响文字阅读。 -->
+    <div class="scene" aria-hidden="true">
+      <span class="halo halo-pink"></span>
+      <span class="halo halo-cyan"></span>
+      <span class="star star-a"></span>
+      <span class="star star-b"></span>
+      <span class="star star-c"></span>
+      <span class="ribbon"></span>
     </div>
 
-    <header class="topbar">
-      <a class="brand" href="#" aria-label="回到首页">
+    <div class="progress" id="read-progress" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#home" aria-label="回到首页">
         <img src="https://avatars.githubusercontent.com/u/193676623?v=4" alt="514-koishi-514 avatar" />
         <span>514-koishi-514</span>
       </a>
-      <nav aria-label="主导航">
-        <a href="#studio">Studio</a>
-        <a href="#projects">Projects</a>
-        <a href="#formats">Formats</a>
+
+      <nav class="nav" aria-label="主导航">
+        <a href="#home" data-route="home">首页</a>
+        <a href="#posts" data-route="posts">文章</a>
+        <a href="#archive" data-route="archive">归档</a>
+        <a href="#projects" data-route="projects">项目</a>
+        <a href="#studio" data-route="studio">工作台</a>
+        <a href="#about" data-route="about">关于</a>
       </nav>
-      <a class="icon-link" href="https://github.com/514-koishi-514" aria-label="GitHub profile">
-        <i data-lucide="github"></i>
-      </a>
+
+      <div class="header-actions">
+        <button class="icon-button" type="button" id="theme-button" title="切换主题" aria-label="切换主题">
+          <i data-lucide="moon"></i>
+        </button>
+        <a class="icon-button" href="https://github.com/514-koishi-514" title="GitHub" aria-label="GitHub">
+          <i data-lucide="github"></i>
+        </a>
+      </div>
     </header>
 
     <main>
-      <section class="workspace" id="studio">
-        <aside class="profile-panel reveal">
-          <div class="identity">
-            <img src="https://avatars.githubusercontent.com/u/193676623?v=4" alt="514-koishi-514 avatar" />
-            <div>
-              <p class="eyebrow">GitHub Pages</p>
-              <h1>Notes Studio</h1>
+      <!-- 首页：博客入口，不做营销式落地页。 -->
+      <section class="view is-active" id="view-home" data-view="home">
+        <div class="home-grid">
+          <section class="hero-panel reveal">
+            <p class="eyebrow">Personal Blog</p>
+            <h1>记录学习、实验和一些阶段性的想法。</h1>
+            <p class="hero-copy">
+              这里整理 AI、编程、课程项目与个人笔记。视觉偏轻二次元，文字和内容保持清爽直接。
+            </p>
+            <div class="hero-actions">
+              <a class="primary-button" href="#posts">
+                <i data-lucide="book-open-text"></i>
+                阅读文章
+              </a>
+              <a class="ghost-button" href="#studio">
+                <i data-lucide="file-up"></i>
+                预览 MD/QMD
+              </a>
             </div>
-          </div>
-          <p class="intro">
-            一个轻量的个人网页：放作品、放笔记，也可以把 Markdown 和 QMD 拖进来即时预览。
-          </p>
+          </section>
 
-          <div class="quick-stats" aria-label="站点能力">
-            <div>
-              <strong>MD</strong>
-              <span>Markdown</span>
+          <aside class="mascot-panel reveal">
+            <div class="portrait-card">
+              <img src="https://avatars.githubusercontent.com/u/193676623?v=4" alt="514-koishi-514 avatar" />
+              <span class="portrait-ring"></span>
             </div>
-            <div>
-              <strong>QMD</strong>
-              <span>Quarto</span>
+            <div class="status-list">
+              <span><b>Focus</b> AI / Coding / Notes</span>
+              <span><b>Format</b> Markdown / QMD</span>
+              <span><b>Deploy</b> GitHub Pages</span>
             </div>
-            <div>
-              <strong>TXT</strong>
-              <span>Plain text</span>
-            </div>
-          </div>
+          </aside>
+        </div>
 
-          <div class="file-list" aria-label="示例文件">
-            <button class="file-card is-active" type="button" data-sample="content/welcome.md">
-              <i data-lucide="file-text"></i>
-              <span>
-                <strong>welcome.md</strong>
-                <small>主页介绍</small>
-              </span>
-            </button>
-            <button class="file-card" type="button" data-sample="content/quarto-notes.qmd">
-              <i data-lucide="braces"></i>
-              <span>
-                <strong>quarto-notes.qmd</strong>
-                <small>QMD 示例</small>
-              </span>
-            </button>
+        <section class="content-band reveal">
+          <div class="section-heading">
+            <p class="eyebrow">Latest</p>
+            <h2>最新文章</h2>
           </div>
-        </aside>
+          <div class="post-grid" id="latest-posts"></div>
+        </section>
 
-        <section class="reader reveal" aria-label="文档预览器">
-          <div class="reader-toolbar">
-            <div>
-              <p class="eyebrow">Live Preview</p>
-              <h2 id="document-title">welcome.md</h2>
+        <section class="content-band two-column reveal">
+          <div>
+            <div class="section-heading">
+              <p class="eyebrow">Tags</p>
+              <h2>常用标签</h2>
             </div>
-            <div class="toolbar-actions">
-              <label class="icon-button" title="打开本地文件">
-                <i data-lucide="upload"></i>
-                <input id="file-input" type="file" accept=".md,.markdown,.qmd,.txt,text/markdown,text/plain" />
-              </label>
-              <button class="icon-button" type="button" id="copy-button" title="复制源码">
-                <i data-lucide="copy"></i>
-              </button>
-              <button class="icon-button" type="button" id="theme-button" title="切换明暗">
-                <i data-lucide="moon"></i>
-              </button>
-            </div>
+            <div class="tag-cloud" id="home-tags"></div>
           </div>
-
-          <div class="drop-zone" id="drop-zone">
-            <div class="preview" id="preview" tabindex="0"></div>
-            <div class="drop-hint">
-              <i data-lucide="file-up"></i>
-              <span>Drop markdown or qmd</span>
+          <div>
+            <div class="section-heading">
+              <p class="eyebrow">Pinned</p>
+              <h2>精选项目</h2>
+            </div>
+            <div class="mini-projects">
+              <a href="#projects"><i data-lucide="sparkles"></i> AI Homework Notes</a>
+              <a href="#projects"><i data-lucide="square-terminal"></i> Coding Experiments</a>
+              <a href="#projects"><i data-lucide="line-chart"></i> Training Logs</a>
             </div>
           </div>
         </section>
       </section>
 
-      <section class="projects" id="projects">
-        <div class="section-head reveal">
-          <p class="eyebrow">Project Board</p>
-          <h2>可以继续扩展的内容区</h2>
+      <!-- 文章列表：搜索、标签筛选、格式标识。 -->
+      <section class="view" id="view-posts" data-view="posts">
+        <div class="page-head reveal">
+          <p class="eyebrow">Writing</p>
+          <h1>文章</h1>
+          <p>按标签、标题和摘要快速筛选内容。</p>
+        </div>
+        <div class="filter-bar reveal">
+          <label class="search-box">
+            <i data-lucide="search"></i>
+            <input id="search-input" type="search" placeholder="搜索标题、摘要、标签..." />
+          </label>
+          <div class="tag-filter" id="tag-filter"></div>
+        </div>
+        <div class="post-grid wide" id="post-list"></div>
+      </section>
+
+      <!-- 文章详情：由 JS 根据 hash 加载 Markdown/QMD。 -->
+      <section class="view" id="view-post" data-view="post">
+        <article class="article-shell">
+          <aside class="article-meta reveal">
+            <a class="back-link" href="#posts"><i data-lucide="arrow-left"></i> 返回文章</a>
+            <p class="eyebrow" id="post-format">Post</p>
+            <h1 id="post-title"></h1>
+            <p id="post-summary"></p>
+            <div class="article-tags" id="post-tags"></div>
+          </aside>
+          <section class="article-body reveal">
+            <div class="toc" id="post-toc"></div>
+            <div class="markdown-body" id="post-content"></div>
+          </section>
+        </article>
+      </section>
+
+      <!-- 归档：按年份聚合，适合长期维护。 -->
+      <section class="view" id="view-archive" data-view="archive">
+        <div class="page-head reveal">
+          <p class="eyebrow">Timeline</p>
+          <h1>归档</h1>
+          <p>按发布时间整理全部文章。</p>
+        </div>
+        <div class="timeline reveal" id="archive-list"></div>
+      </section>
+
+      <!-- 项目：展示课程、实验和仓库入口。 -->
+      <section class="view" id="view-projects" data-view="projects">
+        <div class="page-head reveal">
+          <p class="eyebrow">Projects</p>
+          <h1>项目</h1>
+          <p>这里放课程项目、AI 实验、代码记录和可复现结果。</p>
         </div>
         <div class="project-grid">
           <article class="project-card reveal">
-            <i data-lucide="sparkles"></i>
-            <h3>AI Notes</h3>
-            <p>记录模型实验、提示词、训练日志和论文阅读。</p>
+            <i data-lucide="brain-circuit"></i>
+            <h2>AI Experiments</h2>
+            <p>模型训练、采样策略、注意力机制与实验日志。</p>
+            <a href="#posts?tag=AI">查看相关文章</a>
           </article>
           <article class="project-card reveal">
             <i data-lucide="code-2"></i>
-            <h3>Code Lab</h3>
-            <p>展示课程项目、算法练习和可复现实验。</p>
+            <h2>Code Lab</h2>
+            <p>算法实现、课程作业和小型工具。</p>
+            <a href="https://github.com/514-koishi-514">打开 GitHub</a>
           </article>
           <article class="project-card reveal">
-            <i data-lucide="book-open-text"></i>
-            <h3>Quarto Docs</h3>
-            <p>把 `.qmd` 当作研究笔记源文件，网页端先做快速预览。</p>
+            <i data-lucide="file-text"></i>
+            <h2>Quarto Notes</h2>
+            <p>用 QMD 管理带代码、公式和结构化 front matter 的笔记。</p>
+            <a href="#studio">打开工作台</a>
           </article>
         </div>
       </section>
 
-      <section class="formats" id="formats">
-        <div class="format-strip reveal">
-          <span>.md</span>
-          <span>.markdown</span>
-          <span>.qmd</span>
-          <span>.txt</span>
-          <span>front matter</span>
-          <span>math</span>
-          <span>code blocks</span>
+      <!-- 工作台：保留你常用的 Markdown/QMD 拖拽预览。 -->
+      <section class="view" id="view-studio" data-view="studio">
+        <div class="studio-layout">
+          <aside class="studio-side reveal">
+            <p class="eyebrow">Studio</p>
+            <h1>Markdown / QMD 工作台</h1>
+            <p>拖入本地 `.md`、`.markdown`、`.qmd` 或 `.txt` 文件即可预览。</p>
+            <div class="sample-list">
+              <button type="button" class="sample-button" data-sample="content/posts/welcome.md">
+                <i data-lucide="file-text"></i>
+                welcome.md
+              </button>
+              <button type="button" class="sample-button" data-sample="content/posts/quarto-notes.qmd">
+                <i data-lucide="braces"></i>
+                quarto-notes.qmd
+              </button>
+            </div>
+          </aside>
+          <section class="studio-reader reveal">
+            <div class="reader-toolbar">
+              <h2 id="studio-title">welcome.md</h2>
+              <div class="toolbar-actions">
+                <label class="icon-button" title="打开本地文件" aria-label="打开本地文件">
+                  <i data-lucide="upload"></i>
+                  <input id="file-input" type="file" accept=".md,.markdown,.qmd,.txt,text/markdown,text/plain" />
+                </label>
+                <button class="icon-button" type="button" id="copy-button" title="复制源码" aria-label="复制源码">
+                  <i data-lucide="copy"></i>
+                </button>
+              </div>
+            </div>
+            <div class="drop-zone" id="drop-zone">
+              <div class="markdown-body studio-preview" id="studio-preview"></div>
+              <div class="drop-hint"><i data-lucide="file-up"></i><span>拖放文件到这里</span></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- 关于：文案正常，不做角色设定。 -->
+      <section class="view" id="view-about" data-view="about">
+        <div class="about-layout">
+          <div class="about-card reveal">
+            <p class="eyebrow">About</p>
+            <h1>关于这个博客</h1>
+            <p>
+              这个站点用于整理学习记录、项目总结和一些长期笔记。页面是静态部署，内容以 Markdown 和 QMD 为主。
+            </p>
+            <p>
+              后续可以继续扩展自动生成索引、评论系统、RSS、Live2D 展示或更多主题。
+            </p>
+          </div>
+          <div class="contact-card reveal">
+            <h2>Links</h2>
+            <a href="https://github.com/514-koishi-514"><i data-lucide="github"></i> GitHub</a>
+            <a href="#studio"><i data-lucide="file-up"></i> Markdown/QMD 工作台</a>
+            <a href="#posts"><i data-lucide="book-open-text"></i> 全部文章</a>
+          </div>
         </div>
       </section>
     </main>

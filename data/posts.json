@@ -1,0 +1,29 @@
+[
+  {
+    "slug": "welcome",
+    "title": "博客说明与写作方式",
+    "date": "2026-05-29",
+    "format": "MD",
+    "tags": ["Blog", "Markdown", "Guide"],
+    "summary": "这个站点的结构说明，以及后续如何新增 Markdown 或 QMD 文章。",
+    "file": "content/posts/welcome.md"
+  },
+  {
+    "slug": "quarto-notes",
+    "title": "QMD 笔记示例",
+    "date": "2026-05-28",
+    "format": "QMD",
+    "tags": ["Quarto", "Notes", "Math"],
+    "summary": "展示 Quarto Markdown 的 front matter、代码块、公式和表格。",
+    "file": "content/posts/quarto-notes.qmd"
+  },
+  {
+    "slug": "ai-homework-log",
+    "title": "AI 作业实验记录模板",
+    "date": "2026-05-20",
+    "format": "MD",
+    "tags": ["AI", "Experiment", "Course"],
+    "summary": "一个适合记录模型实验、训练日志和结果分析的文章模板。",
+    "file": "content/posts/ai-homework-log.md"
+  }
+]

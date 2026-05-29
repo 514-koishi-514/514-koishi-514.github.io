@@ -1,12 +1,12 @@
 ---
-title: "Quarto Notes"
+title: "QMD 笔记示例"
 author: "514-koishi-514"
 format:
   html:
     toc: true
 ---
 
-# QMD 示例
+# QMD 笔记示例
 
 这个文件保留了 Quarto 常见的 YAML front matter。网页预览器会把它隐藏掉，然后按 Markdown 内容渲染。
 
