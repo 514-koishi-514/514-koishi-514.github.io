@@ -279,23 +279,45 @@ const languageLabel = (language) => {
 
 const languageIcon = (language) => {
   const icons = {
-    python: "Py",
-    py: "Py",
-    cpp: "C++",
-    c: "C",
-    javascript: "JS",
-    js: "JS",
-    typescript: "TS",
-    ts: "TS",
-    yaml: "YML",
-    yml: "YML",
-    json: "{}",
-    mermaid: "M",
-    markdown: "MD",
-    bash: "$",
-    sh: "$"
+    python: "devicon-python-plain colored",
+    py: "devicon-python-plain colored",
+    cpp: "devicon-cplusplus-plain colored",
+    cplusplus: "devicon-cplusplus-plain colored",
+    c: "devicon-c-plain colored",
+    javascript: "devicon-javascript-plain colored",
+    js: "devicon-javascript-plain colored",
+    typescript: "devicon-typescript-plain colored",
+    ts: "devicon-typescript-plain colored",
+    java: "devicon-java-plain colored",
+    go: "devicon-go-original-wordmark colored",
+    golang: "devicon-go-original-wordmark colored",
+    rust: "devicon-rust-original",
+    ruby: "devicon-ruby-plain colored",
+    php: "devicon-php-plain colored",
+    html: "devicon-html5-plain colored",
+    css: "devicon-css3-plain colored",
+    scss: "devicon-sass-original colored",
+    sass: "devicon-sass-original colored",
+    json: "devicon-json-plain colored",
+    yaml: "devicon-yaml-plain colored",
+    yml: "devicon-yaml-plain colored",
+    markdown: "devicon-markdown-original",
+    md: "devicon-markdown-original",
+    bash: "devicon-bash-plain colored",
+    sh: "devicon-bash-plain colored",
+    shell: "devicon-bash-plain colored",
+    powershell: "devicon-powershell-plain colored",
+    dockerfile: "devicon-docker-plain colored",
+    docker: "devicon-docker-plain colored",
+    git: "devicon-git-plain colored",
+    latex: "devicon-latex-original",
+    mermaid: "devicon-graphql-plain colored"
   };
-  return icons[language] || "&lt;/&gt;";
+  const className = icons[language];
+  if (className) {
+    return `<i class="code-devicon ${className}" aria-hidden="true"></i>`;
+  }
+  return `<i class="code-devicon code-devicon-fallback" aria-hidden="true"></i>`;
 };
 
 const fallbackHighlight = (code, language) => {
@@ -343,6 +365,22 @@ const getCodeLanguage = (code) => {
   return languageClass?.replace("language-", "").toLowerCase() || "text";
 };
 
+const renderMermaidBlocks = async (container) => {
+  const diagrams = [...container.querySelectorAll(".mermaid")];
+  if (!diagrams.length || !window.mermaid) return;
+
+  try {
+    window.mermaid.initialize({
+      startOnLoad: false,
+      theme: document.body.classList.contains("code-theme-light") ? "default" : "dark",
+      securityLevel: "loose"
+    });
+    await window.mermaid.run({ nodes: diagrams });
+  } catch (error) {
+    console.warn("Mermaid render skipped:", error);
+  }
+};
+
 // 代码块增强：加 Atom One 高亮、语言标题条，以及更明显的语言标识。
 const enhanceCodeBlocks = (container) => {
   container.querySelectorAll("pre > code").forEach((code) => {
@@ -350,7 +388,24 @@ const enhanceCodeBlocks = (container) => {
     if (!pre || pre.closest(".code-shell")) return;
 
     const language = getCodeLanguage(code);
-    if (window.hljs && language !== "mermaid") {
+    if (language === "mermaid") {
+      const shell = document.createElement("figure");
+      shell.className = "code-shell mermaid-shell";
+      shell.dataset.language = language;
+      shell.innerHTML = `
+        <figcaption class="code-caption">
+          <span class="code-language">
+            <span class="code-language-icon">${languageIcon(language)}</span>
+            <span>${languageLabel(language)}</span>
+          </span>
+        </figcaption>
+        <div class="mermaid">${code.textContent}</div>
+      `;
+      pre.replaceWith(shell);
+      return;
+    }
+
+    if (window.hljs) {
       window.hljs.highlightElement(code);
     } else {
       fallbackHighlight(code, language);
@@ -482,6 +537,7 @@ const renderPost = async (slug) => {
     const source = await response.text();
     postContent.innerHTML = markdownToHtml(source);
     enhanceCodeBlocks(postContent);
+    await renderMermaidBlocks(postContent);
   } catch (error) {
     postContent.innerHTML = `<p>文章加载失败，请检查 <code>${post.file}</code> 是否存在。</p>`;
     console.error(error);
@@ -508,6 +564,7 @@ const renderStudio = async (source, name = "untitled.md") => {
   studioTitle.textContent = name;
   studioPreview.innerHTML = markdownToHtml(source);
   enhanceCodeBlocks(studioPreview);
+  await renderMermaidBlocks(studioPreview);
   await renderMath(studioPreview);
   studioPreview.scrollTo({ top: 0, behavior: "smooth" });
 };

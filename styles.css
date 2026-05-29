@@ -118,32 +118,6 @@ button {
   animation-delay: -6s;
 }
 
-.star {
-  position: absolute;
-  width: 0.7rem;
-  height: 0.7rem;
-  background: var(--yellow);
-  clip-path: polygon(50% 0, 62% 36%, 100% 50%, 62% 64%, 50% 100%, 38% 64%, 0 50%, 38% 36%);
-  animation: twinkle 2.8s ease-in-out infinite;
-}
-
-.star-a {
-  top: 18%;
-  left: 76%;
-}
-
-.star-b {
-  top: 62%;
-  left: 9%;
-  animation-delay: -1s;
-}
-
-.star-c {
-  top: 78%;
-  left: 88%;
-  animation-delay: -1.7s;
-}
-
 .star-field {
   position: absolute;
   width: 0.34rem;
@@ -849,15 +823,27 @@ h2 {
 
 .code-language-icon {
   display: inline-grid;
-  min-width: 2rem;
-  height: 1.35rem;
+  width: 2rem;
+  height: 2rem;
   place-items: center;
-  padding: 0 0.35rem;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 6px;
-  color: #241624;
-  background: linear-gradient(135deg, var(--yellow), var(--pink));
-  font-size: 0.68rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255, 255, 255, 0.5), transparent 45%),
+    rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.code-devicon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.code-devicon-fallback::before {
+  content: "⌘";
+  color: var(--cyan);
+  font-family: "Manoco", "Monaco", "Heiti SC", "SimHei", "Microsoft YaHei", ui-monospace, monospace;
+  font-weight: 900;
 }
 
 body.code-theme-light .code-shell {
@@ -876,8 +862,39 @@ body.code-theme-light .code-language {
   color: #2f3342;
 }
 
+body.code-theme-light .code-language-icon {
+  border-color: rgba(36, 22, 36, 0.12);
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255, 255, 255, 0.78), transparent 45%),
+    rgba(255, 255, 255, 0.78);
+}
+
 body.code-theme-light .markdown-body pre {
   background: #fafafa;
+}
+
+.mermaid-shell {
+  background: var(--panel-strong);
+}
+
+.mermaid-shell .code-caption {
+  border-bottom-color: var(--line);
+}
+
+.mermaid {
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  overflow-x: auto;
+  padding: 1.2rem;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(84, 217, 231, 0.12), transparent 16rem),
+    rgba(255, 255, 255, 0.16);
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
 }
 
 /* CDN 失败时，本地 fallback 高亮也使用 Atom One 系列配色。 */
@@ -1232,18 +1249,6 @@ body.code-theme-light .hljs-name {
   }
   to {
     transform: translate3d(2.4rem, 1.6rem, 0) rotate(12deg);
-  }
-}
-
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: scale(0.8) rotate(0deg);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2) rotate(45deg);
   }
 }
 
