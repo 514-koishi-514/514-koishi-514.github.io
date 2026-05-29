@@ -267,6 +267,29 @@ button {
   display: none;
 }
 
+/* 图标库加载失败时，保留一个小圆点占位，避免按钮看起来塌掉。 */
+i[data-lucide] {
+  display: inline-grid;
+  width: 1.15rem;
+  height: 1.15rem;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+i[data-lucide]::before {
+  width: 0.42rem;
+  height: 0.42rem;
+  content: "";
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+svg.lucide + span,
+svg.lucide {
+  flex: 0 0 auto;
+}
+
 main {
   width: min(1180px, calc(100% - 28px));
   margin: 0 auto;
@@ -691,7 +714,14 @@ h2 {
 
 .markdown-body p,
 .markdown-body li {
-  color: color-mix(in srgb, var(--text), var(--muted) 18%);
+  color: var(--text);
+}
+
+@supports (color: color-mix(in srgb, black, white)) {
+  .markdown-body p,
+  .markdown-body li {
+    color: color-mix(in srgb, var(--text), var(--muted) 18%);
+  }
 }
 
 .markdown-body a {
@@ -735,6 +765,12 @@ h2 {
   overflow-x: auto;
   width: 100%;
   border-collapse: collapse;
+}
+
+.math-block {
+  overflow-x: auto;
+  margin: 1.4rem 0;
+  padding: 0.4rem 0;
 }
 
 .markdown-body th,

@@ -6,7 +6,8 @@ const state = {
   posts: [],
   activeTag: "all",
   query: "",
-  studioSource: ""
+  studioSource: "",
+  studioLoaded: false
 };
 
 const views = document.querySelectorAll(".view");
@@ -54,30 +55,158 @@ const slugify = (text) => {
     .replace(/^-+|-+$/g, "");
 };
 
-// QMD 的 YAML front matter 和 ```{python} 代码块需要转成普通 Markdown。
+const escapeHtml = (value) => {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+};
+
+const renderInlineMarkdown = (source) => {
+  return escapeHtml(source)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+};
+
+// 本地 Markdown 渲染器：当 marked CDN 加载失败时使用，保证文章不会显示成一整段源码。
+const basicMarkdownToHtml = (source) => {
+  const lines = source.split("\n");
+  const html = [];
+  let index = 0;
+  let inList = false;
+  let listType = "ul";
+
+  const closeList = () => {
+    if (inList) {
+      html.push(`</${listType}>`);
+      inList = false;
+      listType = "ul";
+    }
+  };
+
+  while (index < lines.length) {
+    const line = lines[index];
+
+    if (/^```/.test(line)) {
+      closeList();
+      const language = line.replace(/^```/, "").trim();
+      const code = [];
+      index += 1;
+      while (index < lines.length && !/^```/.test(lines[index])) {
+        code.push(lines[index]);
+        index += 1;
+      }
+      html.push(`<pre><code class="language-${escapeHtml(language)}">${escapeHtml(code.join("\n"))}</code></pre>`);
+    } else if (/^\|.+\|$/.test(line) && /^\|[\s:-]+\|/.test(lines[index + 1] || "")) {
+      closeList();
+      const headers = line.split("|").slice(1, -1).map((cell) => cell.trim());
+      index += 2;
+      const rows = [];
+      while (index < lines.length && /^\|.+\|$/.test(lines[index])) {
+        rows.push(lines[index].split("|").slice(1, -1).map((cell) => cell.trim()));
+        index += 1;
+      }
+      html.push(
+        `<table><thead><tr>${headers.map((cell) => `<th>${renderInlineMarkdown(cell)}</th>`).join("")}</tr></thead><tbody>${rows
+          .map((row) => `<tr>${row.map((cell) => `<td>${renderInlineMarkdown(cell)}</td>`).join("")}</tr>`)
+          .join("")}</tbody></table>`
+      );
+      continue;
+    } else if (/^#{1,6}\s+/.test(line)) {
+      closeList();
+      const level = line.match(/^#+/)?.[0].length || 2;
+      html.push(`<h${level}>${renderInlineMarkdown(line.replace(/^#{1,6}\s+/, ""))}</h${level}>`);
+    } else if (/^>\s?/.test(line)) {
+      closeList();
+      html.push(`<blockquote><p>${renderInlineMarkdown(line.replace(/^>\s?/, ""))}</p></blockquote>`);
+    } else if (/^[-*]\s+/.test(line)) {
+      if (!inList || listType !== "ul") {
+        closeList();
+        html.push("<ul>");
+        inList = true;
+        listType = "ul";
+      }
+      html.push(`<li>${renderInlineMarkdown(line.replace(/^[-*]\s+/, ""))}</li>`);
+    } else if (/^\d+\.\s+/.test(line)) {
+      if (!inList || listType !== "ol") {
+        closeList();
+        html.push("<ol>");
+        inList = true;
+        listType = "ol";
+      }
+      html.push(`<li>${renderInlineMarkdown(line.replace(/^\d+\.\s+/, ""))}</li>`);
+    } else if (line.trim()) {
+      closeList();
+      html.push(`<p>${renderInlineMarkdown(line)}</p>`);
+    } else {
+      closeList();
+    }
+
+    index += 1;
+  }
+
+  closeList();
+  return html.join("\n");
+};
+
+// QMD 的 YAML front matter、代码块、callout 和 chunk options 需要转成普通 Markdown。
 const normalizeMarkdown = (source) => {
   return source
     .replace(/^---[\s\S]*?---\s*/m, "")
-    .replace(/^```{[^}\n]+}[\s\S]*?^```\s*/gm, (block) => {
-      const language = block.match(/^```{([^}\n]+)}/)?.[1] || "";
-      const firstLineEnd = block.indexOf("\n");
-      return `\`\`\`${language}\n${block.slice(firstLineEnd + 1)}`;
+    .replace(/^```{([^}\n]+)}\s*$/gm, (_, info) => {
+      const language = info.split(/[,\s]+/)[0].replace(/^[.#]/, "") || "text";
+      return `\`\`\`${language}`;
     })
+    .replace(/^#\|\s?.*$/gm, "")
+    .replace(/^:::\s*\{\.callout-([a-z-]+).*}$/gm, (_, type) => `> **${type.toUpperCase()}**`)
+    .replace(/^:::\s*$/gm, "")
     .trim();
+};
+
+const protectMath = (source) => {
+  const math = [];
+  const text = source.replace(/\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\]|\$[^$\n]+\$|\\\([^)]*\\\)/g, (match) => {
+    const token = `@@MATH_${math.length}@@`;
+    const display = match.startsWith("$$") || match.startsWith("\\[");
+    const body = match.startsWith("$$") ? match.slice(2, -2).trim() : match;
+    math.push({
+      display,
+      value: display && match.startsWith("$$") ? `\\[${body}\\]` : match
+    });
+    return token;
+  });
+  return { text, math };
+};
+
+const restoreMath = (html, math) => {
+  return math.reduce((result, item, index) => {
+    const token = `@@MATH_${index}@@`;
+    const value = item.display ? `<div class="math-block">${item.value}</div>` : item.value;
+    return result.replaceAll(`<p>${token}</p>`, value).replaceAll(token, value);
+  }, html);
 };
 
 const markdownToHtml = (source) => {
   const normalized = normalizeMarkdown(source);
+  const { text, math } = protectMath(normalized);
   const html = window.marked
-    ? window.marked.parse(normalized, { gfm: true, breaks: false })
-    : `<pre>${normalized.replace(/</g, "&lt;")}</pre>`;
+    ? window.marked.parse(text, { gfm: true, breaks: false })
+    : basicMarkdownToHtml(text);
 
-  return window.DOMPurify ? window.DOMPurify.sanitize(html) : html;
+  const restored = restoreMath(html, math);
+  return window.DOMPurify ? window.DOMPurify.sanitize(restored) : restored;
 };
 
 const renderMath = async (container) => {
-  if (window.MathJax?.typesetPromise) {
-    await window.MathJax.typesetPromise([container]);
+  if (window.MathJax?.typesetPromise && document.body.classList.contains("math-ready")) {
+    try {
+      await window.MathJax.typesetPromise([container]);
+    } catch (error) {
+      console.warn("MathJax render skipped:", error);
+    }
   }
 };
 
@@ -173,9 +302,16 @@ const renderPost = async (slug) => {
   postFormat.textContent = `${post.format} · ${formatDate(post.date)}`;
   postTags.innerHTML = post.tags.map((tag) => `<span class="badge">${tag}</span>`).join("");
 
-  const response = await fetch(post.file);
-  const source = await response.text();
-  postContent.innerHTML = markdownToHtml(source);
+  try {
+    const response = await fetch(post.file);
+    if (!response.ok) throw new Error(`Cannot load ${post.file}`);
+    const source = await response.text();
+    postContent.innerHTML = markdownToHtml(source);
+  } catch (error) {
+    postContent.innerHTML = `<p>文章加载失败，请检查 <code>${post.file}</code> 是否存在。</p>`;
+    console.error(error);
+    return;
+  }
 
   // 给标题生成锚点和目录。
   const headings = [...postContent.querySelectorAll("h2, h3")];
@@ -201,9 +337,16 @@ const renderStudio = async (source, name = "untitled.md") => {
 };
 
 const loadStudioSample = async (path) => {
-  const response = await fetch(path);
-  const source = await response.text();
-  await renderStudio(source, path.split("/").pop());
+  try {
+    const response = await fetch(path);
+    if (!response.ok) throw new Error(`Cannot load ${path}`);
+    const source = await response.text();
+    await renderStudio(source, path.split("/").pop());
+    state.studioLoaded = true;
+  } catch (error) {
+    studioPreview.innerHTML = `<p>示例文件加载失败，请检查 <code>${path}</code> 是否存在。</p>`;
+    console.error(error);
+  }
 };
 
 const readLocalFile = async (file) => {
@@ -224,26 +367,32 @@ const parseRoute = () => {
 
 const showView = async () => {
   const { route, slug, anchor, params } = parseRoute();
-  const normalizedRoute = route === "post" ? "post" : route;
+  const knownRoutes = new Set(["home", "posts", "archive", "projects", "studio", "about", "post"]);
+  const safeRoute = knownRoutes.has(route) ? route : "home";
+  const normalizedRoute = safeRoute === "post" ? "post" : safeRoute;
 
   views.forEach((view) => view.classList.toggle("is-active", view.dataset.view === normalizedRoute));
-  navLinks.forEach((link) => link.classList.toggle("is-active", link.dataset.route === route));
+  navLinks.forEach((link) => link.classList.toggle("is-active", link.dataset.route === safeRoute));
 
-  if (route === "posts") {
+  if (safeRoute === "posts") {
     state.activeTag = params.get("tag") || state.activeTag || "all";
     renderFilters();
     renderPostList();
   }
 
-  if (route === "post") {
+  if (safeRoute === "post") {
     await renderPost(slug);
     if (anchor) {
       requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth" }));
     }
   }
 
+  if (safeRoute === "studio" && !state.studioLoaded) {
+    await loadStudioSample("content/posts/welcome.md");
+  }
+
   // 有目录锚点时保留目标位置；普通切页时回到顶部。
-  if (!(route === "post" && anchor)) {
+  if (!(safeRoute === "post" && anchor)) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   refreshReveal();
@@ -334,14 +483,19 @@ const init = async () => {
     document.body.classList.add("dark");
   }
 
-  const response = await fetch("data/posts.json");
-  state.posts = (await response.json()).sort((a, b) => new Date(b.date) - new Date(a.date));
+  try {
+    const response = await fetch("data/posts.json");
+    if (!response.ok) throw new Error("Cannot load data/posts.json");
+    state.posts = (await response.json()).sort((a, b) => new Date(b.date) - new Date(a.date));
+  } catch (error) {
+    console.error(error);
+    state.posts = [];
+  }
 
   renderHome();
   renderFilters();
   renderPostList();
   renderArchive();
-  await loadStudioSample("content/posts/welcome.md");
   await showView();
 
   refreshReveal();
@@ -349,3 +503,9 @@ const init = async () => {
 };
 
 window.addEventListener("DOMContentLoaded", init);
+
+window.addEventListener("load", async () => {
+  document.body.classList.add("math-ready");
+  const activeMarkdown = document.querySelector(".view.is-active .markdown-body");
+  if (activeMarkdown) await renderMath(activeMarkdown);
+});
